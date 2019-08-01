@@ -1,0 +1,11 @@
+.bg-primary .navbar-nav .active>.nav-link {
+  color: white !important;
+}
+
+div.location {
+  padding-left: 20px;
+}
+
+.nav {
+  padding-left: 60px;
+}

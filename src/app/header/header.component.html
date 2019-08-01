@@ -1,0 +1,28 @@
+<header>
+  <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-dark bg-primary box-shadow fixed-top p-2">
+    <div class="container-fluid">
+      <a class="navbar-brand" [routerLink]='["/"]'>
+        <img src="../../../assets/icon.svg" height="30" class="d-inline-block align-top" alt="">
+        <span class="ml-2">
+          Koehler App Pool
+        </span>
+      </a>
+
+      <div class="collapse navbar-collapse" id="navbarText">
+        <ul class="navbar-nav mr-auto">
+          <li class="nav-item active">
+
+          </li>
+        </ul>
+        <div class="clearfix">
+          <span class="navbar-text ml-3 " *ngIf="userDetails">
+            {{userDetails.email}}
+          </span>
+          <span class="text-muted ml-3" *ngIf="userDetails">
+            v{{version}}
+          </span>
+        </div>
+      </div>
+    </div>
+  </nav>
+</header>

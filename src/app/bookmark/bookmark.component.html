@@ -1,0 +1,202 @@
+<div class="page">
+  <div class="sidebar">
+    <a title="Refresh" class="pointer" (click)="getAllBookmarks()">
+      <fa-icon class="text-white" [icon]="faSync"></fa-icon>
+    </a>
+    <div class="spacer"></div>
+    <a title="Lesezeichen hinzufügen" class="pointer" (click)="openNewBookmarkModal(newBookmarkModal)">
+      <fa-icon class="text-white" [icon]="faPlus"></fa-icon>
+    </a>
+    <a title="About" class="pointer" (click)="openAboutModal(aboutModal)">
+      <fa-icon class="text-white" [icon]="faInfo"></fa-icon>
+    </a>
+  </div>
+  <div class="page-body">
+    <div class="clearfix">
+      <input class="in float-left" placeholder="Lesenzeichen nach Url, Tags, Titel oder Beschreibung suchen..."
+        [ngModel]='searchString' (ngModelChange)='searchchanged($event)'>
+      <a title="Suchen" class="sch float-right">
+        <fa-icon [icon]="faSearch"></fa-icon>
+      </a>
+    </div>
+
+    <div class="row card-group m-2" *ngIf="filteredBookmarks; let items; else loading">
+      <div class="col-3 p-2" *ngFor="let bookmark of items">
+        <div class="card pointer bg-active" style="height: 10rem;">
+          <div class="card-body" (click)="onTileClick(bookmark)">
+            <h5 class="card-title linewrap">{{bookmark.titel}}&nbsp;</h5>
+            <p class="card-text text-muted linewrap">{{bookmark.description}}&nbsp;</p>
+            <div>
+              <span class="badge badge-success mb-1 linewrap">{{bookmark.tags}}</span>&nbsp;
+            </div>
+            <div class="card-link linewrap" style="color:#2C3E50 !important">{{bookmark.link}}&nbsp;
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #loading>
+        <div class="m-3">Lade...
+          <div class="spinner-border spinner-border-sm text-success" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+    <hr style="width: 100%; color: #ecf0f1; height: 1px; background-color:#ecf0f1;" />
+    <div>
+      <div class="row card-group m-2" *ngIf="filteredBooks; let items; else loading">
+        <div class="col-3 p-2" *ngFor="let bookmark of items">
+          <div class="card pointer bg-active" style="height: 12rem;">
+            <div class="card-body pb-0" (click)="onTileClick(bookmark)">
+              <h5 class="card-title linewrap">{{bookmark.titel}}&nbsp;</h5>
+              <p class="card-text text-muted linewrap">{{bookmark.description}}&nbsp;</p>
+              <div>
+                <span class="badge badge-success mb-1 linewrap">{{bookmark.tags}}</span>&nbsp;
+              </div>
+              <div class="card-link linewrap" style="color:#2C3E50 !important">{{bookmark.link}}&nbsp;</div>
+            </div>
+            <div class="clearfix">
+              <button class="btn btn-sm btn-success float-right mt-2 mb-2 mr-2" title="Edit bookmark"
+                (click)="openEditBookmarkModal(editBookmarkModal, bookmark)">
+                <fa-icon [icon]="faPencilAlt"></fa-icon>
+              </button>
+              <button title="Delete bookmark" (click)="openDeleteBookmarkModal(confirmDeleteModal,bookmark)"
+                class="btn btn-sm btn-primary float-right m-2">
+                <fa-icon [icon]="faTrash"></fa-icon>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <ng-template #loading>
+        <div class="m-3">Lade...
+          <div class="spinner-border spinner-border-sm text-success" role="status">
+            <span class="sr-only">Loading...</span>
+          </div>
+        </div>
+      </ng-template>
+    </div>
+
+
+    <ng-template #newBookmarkModal>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          <fa-icon class="mr-2 text-secondary" [icon]="faPlus"></fa-icon>Neues Lesezeichen
+        </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="newBookmarkModalRef.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="onSaveNewBookmark(book)" #newBookmarkForm="ngForm" *ngIf="book">
+          <div class="form-group has-danger">
+            <input class="form-control" type="text" [(ngModel)]="book.link" required [class.is-invalid]="!url.valid"
+              name="link" placeholder="Url" tabindex="1" #url="ngModel">
+            <div class="invalid-feedback ml-1">Url wird benötigt...</div>
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" [(ngModel)]="book.titel" required name="titel"
+              [class.is-invalid]="!titel.valid" placeholder="Title" tabindex="2" maxlength="80" #titel="ngModel">
+            <div class="invalid-feedback ml-1">Titel wird benötigt...</div>
+          </div>
+          <div class="form-group">
+            <textarea class="form-control" type="text" name="descrpiton" [(ngModel)]="book.description"
+              placeholder="Beschreibung (optional)" tabindex="3" maxlength="200"></textarea>
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" [(ngModel)]="book.tags" name="tags"
+              placeholder="Komma separierte tags (optional)" tabindex="4" maxlength="80">
+          </div>
+          <div class="clearfix">
+            <button type="submit" class="btn btn-success float-left"
+              [disabled]="!newBookmarkForm.form.valid || busy">Speichern<div *ngIf="busy"
+                class="spinner-border spinner-border-sm ml-2 text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+              </div></button>
+            <button type="button" class="btn btn-secondary float-right"
+              (click)="newBookmarkModalRef.hide()">Schließen</button>
+          </div>
+        </form>
+      </div>
+    </ng-template>
+    <ng-template #editBookmarkModal>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          <fa-icon class="mr-2 text-secondary" [icon]="faPencilAlt"></fa-icon>Lesezeichen bearbeiten
+        </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="editBookmarkModalRef.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form (ngSubmit)="onSaveEditBookmark(book)" #editBookmarkForm="ngForm" *ngIf="book">
+          <div class="form-group has-danger">
+            <input class="form-control" type="text" [(ngModel)]="book.link" required [class.is-invalid]="!url.valid"
+              name="link" placeholder="Url" tabindex="1" #url="ngModel">
+            <div class="invalid-feedback ml-1">Url wird benötigt...</div>
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" [(ngModel)]="book.titel" required name="titel"
+              [class.is-invalid]="!titel.valid" placeholder="Title" tabindex="2" maxlength="80" #titel="ngModel">
+            <div class="invalid-feedback ml-1">Titel wird benötigt...</div>
+          </div>
+          <div class="form-group">
+            <textarea class="form-control" type="text" name="descrpiton" [(ngModel)]="book.description"
+              placeholder="Beschreibung (optional)" tabindex="3" maxlength="200"></textarea>
+          </div>
+          <div class="form-group">
+            <input class="form-control" type="text" [(ngModel)]="book.tags" name="tags"
+              placeholder="Komma separierte tags (optional)" tabindex="4" maxlength="80">
+          </div>
+          <div class="clearfix">
+            <button type="submit" class="btn btn-success float-left"
+              [disabled]="!editBookmarkForm.form.valid || busy">Speichern<div *ngIf="busy"
+                class="spinner-border spinner-border-sm ml-2 text-primary" role="status">
+                <span class="sr-only">Loading...</span>
+              </div></button>
+            <button type="button" class="btn btn-secondary float-right"
+              (click)="editBookmarkModalRef.hide()">Schließen</button>
+          </div>
+        </form>
+      </div>
+    </ng-template>
+    <ng-template #confirmDeleteModal>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">
+          <fa-icon class="mr-2 text-secondary" [icon]="faTrash"></fa-icon>Lesezeichen wirklich löschen?
+        </h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="confirmDeleteModalRef.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body text-center">
+        <div class="clearfix">
+          <button type="button" class="btn btn-warning mr-5 " (click)="confirm()" [disabled]=" busy">Löschen<div
+              *ngIf="busy" class="spinner-border spinner-border-sm ml-2 text-primary" role="status">
+              <span class="sr-only">Loading...</span>
+            </div></button>
+          <button type="button" class="btn btn-secondary " (click)="confirmDeleteModalRef.hide()">Abbrechen</button>
+        </div>
+      </div>
+    </ng-template>
+    <ng-template #aboutModal>
+      <div class="modal-header">
+        <h4 class="modal-title pull-left">About</h4>
+        <button type="button" class="close pull-right" aria-label="Close" (click)="aboutModalRef.hide()">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div>Die obere Hälfte zeigt die durch IT IM bereitgestellten Lesezeichen. Die Unteren sind die von Ihnen
+          angelegeten und verwalteten Lesezeichen.
+          Durch drücken des Plus Symbols auf der linken Navigationsleiste können Sie neue Lesezeichen hinzufügen.
+        </div>
+        <div class="mt-2">Icons made by <a href="https://www.flaticon.com/authors/freepik" title="Freepik">Freepik</a>
+          from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a
+            href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC
+            3.0
+            BY</a></div>
+      </div>
+    </ng-template>
+  </div>
+</div>
